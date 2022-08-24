@@ -1,11 +1,11 @@
-using Toybox.Application as App;
-using Toybox.WatchUi as Ui;
-using Toybox.Position as Position;
-using Toybox.Time as Time;
-using Toybox.System as System;
+import Toybox.Application;
+import Toybox.WatchUi;
+import Toybox.Position;
+import Toybox.Time;
+import Toybox.System;
+import Toybox.Lang;
 
-class YASailingApp extends App.AppBase 
-{
+class YASailingApp extends Application.AppBase {
     hidden var _gpsWrapper;
 	hidden var _cruiseView;
 	hidden var _raceTimerView;
@@ -16,15 +16,13 @@ class YASailingApp extends App.AppBase
 	hidden var _routeCustomMenuView;
 	hidden var _mainMenu;
 
-    function initialize() 
-    {
+    function initialize() {
         AppBase.initialize();
         
         setProperty("appVersion", Toybox.WatchUi.loadResource(Rez.Strings.appVersion));
 
 		var deviceSettings = System.getDeviceSettings();
-		if (deviceSettings.screenShape != 1)
-		{
+		if (deviceSettings.screenShape != 1) {
 			LogWrapper.WriteWrongDevice();
 			System.exit();
 		}
@@ -32,35 +30,28 @@ class YASailingApp extends App.AppBase
 	    Settings.LoadSettings();        
 		_gpsWrapper = new GpsWrapper();
 
-		if (deviceSettings.screenHeight == 218)
-		{
+		if (deviceSettings.screenHeight == 218) {
 			initFor218();
 		}
-		else if (deviceSettings.screenHeight == 240)
-		{
+		else if (deviceSettings.screenHeight == 240) {
 			initFor240();
 		}
-		else if (deviceSettings.screenHeight == 260)
-		{
+		else if (deviceSettings.screenHeight == 260) {
 			initFor260();
 		}
-		else if (deviceSettings.screenHeight == 280)
-		{
+		else if (deviceSettings.screenHeight == 280) {
 			initFor280();
 		}
-		else if (deviceSettings.screenHeight == 416)
-		{
+		else if (deviceSettings.screenHeight == 416) {
 			initFor416();
 		}
-		else 
-		{
+		else  {
 			LogWrapper.WriteWrongScreen();
 			System.exit();
 		}
     }
     
-    function initFor218()
-    {
+    function initFor218() {
  	    _cruiseView = new CruiseView(_gpsWrapper, new CruiseView218Dc());
     	_raceTimerView = new RaceTimerView(_gpsWrapper, _cruiseView, new RaceTimerView218Dc());
         _lapView = new LapView(new LapView218Dc(), _gpsWrapper);
@@ -72,8 +63,7 @@ class YASailingApp extends App.AppBase
     }
     
     (:savememory)
-    function initFor240()
-    {
+    function initFor240() {
 		_cruiseView = new CruiseView(_gpsWrapper, new CruiseView240Dc());
 	    _raceTimerView = new RaceTimerView(_gpsWrapper, _cruiseView, new RaceTimerView240Dc());
     	_lapView = new LapView(new LapView240Dc(), _gpsWrapper);
@@ -85,8 +75,7 @@ class YASailingApp extends App.AppBase
     }
     
     (:savememory)
-    function initFor260()
-    {
+    function initFor260() {
 		_cruiseView = new CruiseView(_gpsWrapper, new CruiseView240Dc());
 	    _raceTimerView = new RaceTimerView(_gpsWrapper, _cruiseView, new RaceTimerView240Dc());
     	_lapView = new LapView(new LapView240Dc(), _gpsWrapper);
@@ -98,8 +87,7 @@ class YASailingApp extends App.AppBase
     }    
     
 	(:savememory)
-    function initFor280()
-    {
+    function initFor280() {
 		_cruiseView = new CruiseView(_gpsWrapper, new CruiseView280Dc());
 	    _raceTimerView = new RaceTimerView(_gpsWrapper, _cruiseView, new RaceTimerView240Dc());
     	_lapView = new LapView(new LapView240Dc(), _gpsWrapper);
@@ -111,8 +99,7 @@ class YASailingApp extends App.AppBase
 	}
 
 	(:savememory)
-    function initFor416()
-    {
+    function initFor416() {
 		_cruiseView = new CruiseView(_gpsWrapper, new CruiseView416Dc());
 	    _raceTimerView = new RaceTimerView(_gpsWrapper, _cruiseView, new RaceTimerView240Dc());
     	_lapView = new LapView(new LapView416Dc(), _gpsWrapper);
@@ -125,8 +112,7 @@ class YASailingApp extends App.AppBase
 
     // onStart() is called on application start up
     //
-    function onStart(state) 
-    {
+    function onStart(state as Dictionary?) as Void {
     	Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
 		loadState();
         LogWrapper.WriteAppStart(Time.now());
@@ -135,10 +121,8 @@ class YASailingApp extends App.AppBase
 
     // onStop() is called when your application is exiting
     //
-    function onStop(state) 
-    {
-    	if (!_isStartSuccess)
-    	{
+    function onStop(state as Dictionary?) as Void  {
+    	if (!_isStartSuccess) {
     		return;
     	}	
     	Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
@@ -150,10 +134,9 @@ class YASailingApp extends App.AppBase
     
     // Return the initial view of your application here
     //
-    function getInitialView() 
-    {
+    function getInitialView() {
     /*
-    	var mainMenu = new Ui.Menu(); 
+    	var mainMenu = new WatchUi.Menu(); 
         mainMenu.setTitle("Menu");
         mainMenu.addItem("Race Timer", :raceTimer);
         mainMenu.addItem("Cruise", :cruiseView);
@@ -171,23 +154,19 @@ class YASailingApp extends App.AppBase
     
     // Calls when app settings where updated from mobile device
     //
-    function onSettingsChanged() 
-    { 
+    function onSettingsChanged() { 
     	Settings.LoadSettings();
     }
 
     
     // handle position event
     //
-    function onPosition(info) 
-    {
+    public function onPosition(info as Info) as Void {
         _gpsWrapper.SetPositionInfo(info);
     }
     
-    hidden function loadState()
-    {
-    	try
-    	{
+    hidden function loadState() {
+    	try {
     		var i = 0;
     		var lap = new [6];
     		var lapArray = new[0];
@@ -210,19 +189,16 @@ class YASailingApp extends App.AppBase
     		while (lap != null);	
     		_gpsWrapper.SetLapArray(lapArray);
     	}
-    	catch(exception)
-    	{
+    	catch(exception) {
     		System.println("failed to load state" + exception);
     	}
     }
     
-    hidden function saveState()
-    {
+    hidden function saveState() {
     	var lapId;
     	
     	var lapArray = _gpsWrapper.GetLapArray();
-    	for (var i = 0; i < lapArray.size(); i++)
-    	{
+    	for (var i = 0; i < lapArray.size(); i++) {
     		var lap = new[6];
     		lap[0] = lapArray[i].LapNumber.toString();
     		lap[1] = lapArray[i].MaxSpeedKnot.toString();
@@ -237,8 +213,7 @@ class YASailingApp extends App.AppBase
     	
     	// delete unused keys
     	//
-    	for (var i = lapArray.size(); i < _gpsWrapper.LAP_ARRAY_MAX; i++)
-    	{
+    	for (var i = lapArray.size(); i < _gpsWrapper.LAP_ARRAY_MAX; i++) {
     		deleteProperty("lapId" + i);
     	}
     }

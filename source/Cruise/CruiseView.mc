@@ -1,7 +1,7 @@
-using Toybox.WatchUi as Ui;
-using Toybox.System as Sys;
+import Toybox.WatchUi;
+import Toybox.System;
 
-class CruiseView extends Ui.View 
+class CruiseView extends WatchUi.View 
 {
     hidden var _gpsWrapper;
 	hidden var _timer;
@@ -14,13 +14,14 @@ class CruiseView extends Ui.View
         View.initialize();
         _gpsWrapper = gpsWrapper;
         _cruiseViewDc = cruiseViewDc;
+        _timer = new Timer.Timer();
     }
 
 	// SetUp timer on show to update every second
     //
     function onShow() 
     {
-    	_timer = new Toybox.Timer.Timer();
+    	
     	_timer.start(method(:onTimerUpdate), 1000, true);
     }
 
@@ -35,7 +36,7 @@ class CruiseView extends Ui.View
     //
     function onTimerUpdate()
     {
-        Ui.requestUpdate();
+        WatchUi.requestUpdate();
     }    
 
     // Update the view
@@ -46,7 +47,7 @@ class CruiseView extends Ui.View
     
     	// Display current time
     	//
-        var clockTime = Sys.getClockTime();        
+        var clockTime = System.getClockTime();        
         _cruiseViewDc.PrintTime(dc, clockTime);
         
         // Display speed and bearing if GPS available

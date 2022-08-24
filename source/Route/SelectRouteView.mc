@@ -1,10 +1,10 @@
-using Toybox.WatchUi as Ui;
-using Toybox.System as Sys;
-using Toybox.Communications as Comm;
-using Toybox.Lang as Lang;
+import Toybox.WatchUi;
+import Toybox.System;
+import Toybox.Communications;
+import Toybox.Lang;
 
 (:savememory)
-class SelectRouteView extends Ui.View 
+class SelectRouteView extends WatchUi.View 
 {
 	hidden var _selectRouteViewDc;
 	hidden var _loadingError = 0;
@@ -71,7 +71,7 @@ class SelectRouteView extends Ui.View
 		{
 			_selectedRouteId++;
 		}
-		Ui.requestUpdate();
+		WatchUi.requestUpdate();
 	}
 	
 	function PreviousRoute()
@@ -85,7 +85,7 @@ class SelectRouteView extends Ui.View
 		{
 			_selectedRouteId--;
 		}
-		Ui.requestUpdate();
+		WatchUi.requestUpdate();
 	}
 	
 	function RouteSelected()
@@ -95,7 +95,7 @@ class SelectRouteView extends Ui.View
 			return;
 		}
 		Settings.CurrentRoute = _routesData[_selectedRouteId];
-		Ui.popView(Ui.SLIDE_IMMEDIATE);
+		WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
 	}
 	
 	// Make web request to load available routes
@@ -108,13 +108,15 @@ class SelectRouteView extends Ui.View
 			Settings.UserId]);     
 
 		//Sys.println(url);
+
+		var parameters = {};
 		
         var options = {
-          :method => Comm.HTTP_REQUEST_METHOD_GET,
-          :responseType => Comm.HTTP_RESPONSE_CONTENT_TYPE_JSON
+          :method => Communications.HTTP_REQUEST_METHOD_GET,
+          :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
         };
 
-       Comm.makeWebRequest(url, {}, options, method(:onReceive));
+ //      Communications.makeWebRequest(url, parameters, options, method(:onReceive));
  	}
 	
 	// Receive routes from server
@@ -135,7 +137,7 @@ class SelectRouteView extends Ui.View
 			_routesData = data;
 		}
 		
-		Ui.requestUpdate();
+		WatchUi.requestUpdate();
 	}
 }
 
